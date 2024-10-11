@@ -5,7 +5,7 @@ document.getElementById('submit-btn').addEventListener('click', function() {
 
     // 檢查第一題的答案
     const q1Answer = document.querySelector('input[name="q1"]:checked');
-    if (q1Answer && q1Answer.value === 'D') {
+    if (q1Answer && q1Answer.value === 'A') {
         score++;
     }
 

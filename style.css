@@ -14,6 +14,11 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+label img {
+    margin-left: 10px; /* 與文字保持一些距離 */
+    vertical-align: middle; /* 保持圖片和文字對齊 */
+}
+
 h1, h2 {
     text-align: center;
 }

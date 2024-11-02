@@ -147,6 +147,69 @@
             display: none;
         }
 
+        /* 添加到現有的 style 標籤中 */
+.answers-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.answer-button {
+    padding: 10px 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.answer-button:hover:not([disabled]) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.answer-button:disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.answer-button.correct {
+    background: rgba(46, 213, 115, 0.2);
+    border-color: #2ed573;
+}
+
+.answer-button.incorrect {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: #ff4757;
+}
+
+.answer-result {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.answer-result.correct {
+    background: rgba(46, 213, 115, 0.1);
+    color: #2ed573;
+}
+
+.answer-result.incorrect {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff4757;
+}
+
+.question-text {
+    font-size: 1.1em;
+    line-height: 1.4;
+    margin-bottom: 15px;
+}
+
         @media (max-width: 768px) {
             .api-section {
                 grid-template-columns: 1fr;
@@ -292,21 +355,57 @@
                 $('#result').html(`你的分數是：${score} / 5`).slideDown();
             });
 
-            // API 整合
-            // 小知識問答
-            $.getJSON('https://opentdb.com/api.php?amount=1&type=multiple', function(data) {
-                const question = data.results[0];
-                const content = `
-                    <p>${question.question}</p>
-                    <ul>
-                        ${question.incorrect_answers.map(answer => `<li>${answer}</li>`).join('')}
-                        <li><strong>${question.correct_answer}</strong></li>
-                    </ul>
-                `;
-                $('#trivia-question .content').html(content);
-            }).fail(function() {
-                $('#trivia-question .content').html('無法載入小知識問答');
-            });
+           // 小知識問答 API 整合
+$.getJSON('https://opentdb.com/api.php?amount=1&type=multiple', function(data) {
+    const question = data.results[0];
+    
+    // 將所有答案組合並隨機排序
+    const allAnswers = [...question.incorrect_answers, question.correct_answer]
+        .sort(() => Math.random() - 0.5);
+    
+    // 創建互動式問答界面
+    const content = `
+        <p class="question-text">${question.question}</p>
+        <div class="answers-container">
+            ${allAnswers.map(answer => `
+                <button class="answer-button" data-answer="${answer}">
+                    ${answer}
+                </button>
+            `).join('')}
+        </div>
+        <p class="answer-result" style="display: none;"></p>
+    `;
+    
+    $('#trivia-question .content').html(content);
+
+    // 為答案按鈕添加點擊事件
+    $('.answer-button').click(function() {
+        const selectedAnswer = $(this).data('answer');
+        const isCorrect = selectedAnswer === question.correct_answer;
+        
+        // 禁用所有按鈕，防止重複選擇
+        $('.answer-button').prop('disabled', true);
+        
+        // 標記正確和錯誤答案
+        $('.answer-button').each(function() {
+            const buttonAnswer = $(this).data('answer');
+            if (buttonAnswer === question.correct_answer) {
+                $(this).addClass('correct');
+            } else if (buttonAnswer === selectedAnswer && !isCorrect) {
+                $(this).addClass('incorrect');
+            }
+        });
+
+        // 顯示結果
+        $('.answer-result')
+            .text(isCorrect ? '答對了！' : '答錯了！正確答案是: ' + question.correct_answer)
+            .removeClass('correct incorrect')
+            .addClass(isCorrect ? 'correct' : 'incorrect')
+            .slideDown();
+    });
+}).fail(function() {
+    $('#trivia-question .content').html('無法載入小知識問答');
+});
 
             // 每日一句
             $.getJSON('https://zenquotes.io/api/random', function(data) {

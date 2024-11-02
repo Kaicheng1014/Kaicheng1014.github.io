@@ -36,3 +36,38 @@ document.getElementById('submit-btn').addEventListener('click', function() {
     const resultText = `你的分數是：${score} / ${totalQuestions}`;
     document.getElementById('result').innerText = resultText;
 });
+
+const triviaUrl = 'https://opentdb.com/api.php?amount=1&type=multiple';
+//小知識問答  (Open Trivia DB)
+$.getJSON(triviaUrl, function(data) {
+    const question = data.results[0];
+    $('#trivia-question').html(`
+        <h2>小知識問答</h2>
+        <p>${question.question}</p>
+        <ul>
+            ${question.incorrect_answers.map(answer => `<li>${answer}</li>`).join('')}
+            <li><strong>${question.correct_answer}</strong></li>
+        </ul>
+    `);
+});
+
+//每日一句 (ZenQuotes.io)
+const quoteUrl = 'https://zenquotes.io/api/random';
+
+$.getJSON(quoteUrl, function(data) {
+    $('#daily-quote').html(`
+        <h2>每日一句</h2>
+        <p>"${data[0].q}" - ${data[0].a}</p>
+    `);
+});
+
+//隨機笑話 (JokeAPI)
+const jokeUrl = 'https://v2.jokeapi.dev/joke/Any';
+
+$.getJSON(jokeUrl, function(data) {
+    const jokeText = data.type === 'single' ? data.joke : `${data.setup} - ${data.delivery}`;
+    $('#joke').html(`
+        <h2>隨機笑話</h2>
+        <p>${jokeText}</p>
+    `);
+});
